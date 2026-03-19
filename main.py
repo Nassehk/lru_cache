@@ -4,7 +4,7 @@ from functools import lru_cache
 import random
 
 class cached_object():
-    def __init__(self, id:Any, value:Any, after:Any|None, before:Any|None):
+    def __init__(self, id:Any, value:Any, after:'cached_object | None', before:'cached_object | None'):
         try:
             self.id = hash(id)
         except Exception as e:
@@ -12,8 +12,6 @@ class cached_object():
         self.value = value
         self.before = before
         self.after = after
-        self.last_access_time: float | None = None
-        self.access_count:int = 0
 
     def __repr__(self):
         return f'cached object id = {self.id} , value = {self.value}'
@@ -24,7 +22,6 @@ class cache():
         self.cache_type = cache_type
         self.cache_size = cache_size
         self.object_count: int = 0
-        self.object_ids : list|None = None
         self.head : cached_object|None = None
     
     def __repr__(self):
@@ -34,6 +31,7 @@ class cache():
             text+=f'{node.id},'
             node = node.after
         return text[:-1]
+    
     def move_to_head(self, node: cached_object):
         if node is self.head:
             return
@@ -94,23 +92,23 @@ def cache_this(cache_size):
 
 def test():
     print("Hello from lru-cache!")
-    cache_size = 30
+    cache_size = 200
     sleep_time = 0.001
     nums = random.choices(range(1, 300), k=5000)
     print(f'Length of nums is {len(nums)}')
     
     @cache_this(cache_size)
     def test_func_myCache(x):
-        time.sleep(sleep_time) # to make the function more time consuming and see the effect of caching
+        time.sleep(sleep_time)
         return x*x
 
     @lru_cache(maxsize=cache_size)
     def test_func_pyLRU(x):
-        time.sleep(sleep_time) # to make the function more time consuming and see the effect of caching
+        time.sleep(sleep_time)
         return x*x
 
     def test_func_no_cache(x):
-        time.sleep(sleep_time) # to make the function more time consuming and see the effect of caching
+        time.sleep(sleep_time)
         return x*x
 
     print('testing my cache')
